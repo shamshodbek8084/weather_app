@@ -1,6 +1,7 @@
 import requests
 from django.shortcuts import render
 from django.views import View
+from datetime import datetime, timedelta
 
 ICON_MAP = {
     "clear": "☀️",
@@ -40,6 +41,10 @@ class WeatherView(View):
                 data = response.json()
                 description = data["weather"][0]["description"]
 
+                timezone_offset = data["timezone"]  # soniyalarda
+                local_time = datetime.utcnow() + timedelta(seconds=timezone_offset)
+                local_time_str = local_time.strftime("%Y-%m-%d %H:%M:%S")
+
                 weather_data = {
                     "city": data["name"],
                     "temperature": data["main"]["temp"],
@@ -48,6 +53,7 @@ class WeatherView(View):
                     "humidity": data["main"]["humidity"],
                     "wind_speed": data["wind"]["speed"],
                     "pressure": data["main"]["pressure"],
+                    "local_time": local_time_str,
                     "icon": get_weather_icon(description),
                 }
             else:
